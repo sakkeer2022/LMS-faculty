@@ -1,29 +1,30 @@
-# README #
+# amentorz-faculty
 
-This README would normally document whatever steps are necessary to get your application up and running.
+The faculty web app (Next.js 15, React 19, Tailwind 4, TanStack Query, zod). Port **3003**. The admin (3001) and student (3002) apps are separate repos; the backend is `amentorz-backend`.
 
-### What is this repository for? ###
+## Run
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+```
+cp .env.example .env     # then set the values; never commit .env
+npm install
+npm run dev              # http://localhost:3003
+```
 
-### How do I get set up? ###
+| Script              | Purpose                                                       |
+| ------------------- | ------------------------------------------------------------- |
+| `npm run typecheck` | TypeScript, strict                                            |
+| `npm run lint`      | UI lint: native controls and headings only in `components/ui` |
+| `npm test`          | Vitest                                                        |
+| `npm run build`     | Production build                                              |
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+`/api/v1/*` is proxied to `BACKEND_ORIGIN`, so the auth cookies stay same-origin.
 
-### Contribution guidelines ###
+## Login (`/login`)
 
-* Writing tests
-* Code review
-* Other guidelines
+Built from Figma "Amentorz-webapp" "Screen/02 · Login", node 3:4730, in `src/features/auth` (form, zod schema, `login.css`) and `src/app/(auth)`. It signs in with `POST /auth/faculty/login` (with `rememberMe` from "Keep me signed in"), then returns to the `redirect` path or `/`. The student landing page links here as "Faculty login" (set `NEXT_PUBLIC_FACULTY_URL` there). "Forgot password?" (`/recovery`) is not built yet (LMS-99). `/` redirects to `/login` until the faculty dashboard is designed.
 
-### Who do I talk to? ###
+## Layout
 
-* Repo owner or admin
-* Other community or team contact
+`src/app` routes · `src/features/<feature>` screens · `src/components/ui` the only place for native `button`, `input`, `form` and headings · `src/lib/api` the API client (CSRF, refresh) · `src/lib/auth` session types · `src/styles/tokens.css` the Figma foundations (node 35:2) · `public/auth` Figma assets (downloaded; the Figma URLs expire).
+
+Read `AGENTS.md` for the rules and `SHARED.md` for what is shared with the other apps.
