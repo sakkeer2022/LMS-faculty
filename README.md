@@ -13,7 +13,6 @@ npm run dev              # http://localhost:3003
 | Script              | Purpose                                                       |
 | ------------------- | ------------------------------------------------------------- |
 | `npm run typecheck` | TypeScript, strict                                            |
-| `npm run lint`      | UI lint: native controls and headings only in `components/ui` |
 | `npm test`          | Vitest                                                        |
 | `npm run build`     | Production build                                              |
 
@@ -21,7 +20,7 @@ npm run dev              # http://localhost:3003
 
 ## Login (`/login`)
 
-Built from Figma "Amentorz-webapp" "Screen/02 · Login", node 3:4730, in `src/features/auth` (form, zod schema, `login.css`) and `src/app/(auth)`. It signs in with `POST /auth/faculty/login` (with `rememberMe` from "Keep me signed in"), then returns to the `redirect` path or `/`. The student landing page links here as "Faculty login" (set `NEXT_PUBLIC_FACULTY_URL` there). "Forgot password?" goes to `/recovery`. `/` redirects to `/login` until the faculty dashboard is designed.
+Built from Figma "Amentorz-webapp" "Screen/02 · Login", node 3:4730, in `src/features/auth` (form, zod schema), `src/components/auth` (controls, brand panel) and `src/app/(auth)`. It signs in with `POST /auth/faculty/login` (with `rememberMe` from "Keep me signed in"), then returns to the `redirect` path or `/`. The student landing page links here as "Faculty login" (set `NEXT_PUBLIC_FACULTY_URL` there). "Forgot password?" goes to `/recovery`. `/` redirects to `/login` until the faculty dashboard is designed.
 
 ## Forgot password (`/recovery`)
 
@@ -29,6 +28,6 @@ Forgot password (`/recovery`, Figma 427:4388, 427:4492, 427:29259) is one page w
 
 ## Layout
 
-`src/app` routes · `src/features/<feature>` screens · `src/components/ui` the only place for native `button`, `input`, `form` and headings · `src/lib/api` the API client (CSRF, refresh) · `src/lib/auth` session types · `src/styles/tokens.css` the Figma foundations (node 35:2) · `public/auth` Figma assets (downloaded; the Figma URLs expire).
+`src/app` routes · `src/features/<feature>` screens · `src/components/shadcn` shadcn/ui primitives (Tailwind v4) · `src/components/layout` the faculty shell (sidebar with icon rail, mobile drawer, top bar) and page helpers · `src/components/data-table` TanStack Table `DataTable` · `src/components/auth` login and recovery blocks · `src/lib/api` the API client (CSRF, refresh) · `src/lib/auth` session types · `src/app/globals.css` the Figma foundations (node 35:2) as Tailwind tokens · `public/auth` Figma assets (downloaded; the Figma URLs expire).
 
 Read `AGENTS.md` for the rules and `SHARED.md` for what is shared with the other apps.

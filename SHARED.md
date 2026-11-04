@@ -6,11 +6,10 @@
 | -------------------------------------- | -------------------------------------------------- | ------------------------------- |
 | API client (CSRF, one shared refresh)  | `src/lib/api/client.ts`, `contracts.ts`            | amentorz-admin (identical)      |
 | Session user type (`GET /auth/me`)     | `src/lib/auth/access.ts`                           | amentorz-admin, role changed    |
-| UI lint                                | `scripts/check-ui.cjs`                             | amentorz-admin (identical)      |
 | `implement-screen` skill               | `.claude/skills/implement-screen`                  | amentorz-admin                  |
-| Figma tokens                           | `src/styles/tokens.css`                            | Figma "Webapplication" 35:2     |
-| Login screen (form, `login.css`, `login-controls`, brand photos) | `src/features/auth`, `src/components/ui/login-controls.tsx`, `public/auth` | amentorz-admin; faculty copy, text and endpoint differ |
-| `Link`, `cx`, `Form`                           | `src/components/ui`                                | amentorz-admin                  |
+| Figma tokens (Tailwind `@theme`)       | `src/app/globals.css`                              | amentorz-admin (identical), Figma "Webapplication" 35:2 |
+| Login and recovery blocks, brand photos | `src/features/auth`, `src/components/auth`, `public/auth` | amentorz-admin; faculty copy, text and endpoint differ |
+| shadcn primitives, `cn`, `DataTable`, page helpers | `src/components/shadcn`, `src/lib/utils.ts`, `src/components/data-table`, `src/components/layout` | amentorz-admin (copied) |
 
 Differences on purpose: this app has no login gate in `middleware.ts` yet (the signed-in area will gate on `/auth/me` like the admin does), and its UI is built on the Figma tokens, not the admin's earlier theme. Copied from amentorz-student; the admin is the origin of the API client and the login screen.
 
