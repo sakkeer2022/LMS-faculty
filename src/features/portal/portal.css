@@ -1,0 +1,114 @@
+/* Signed-in placeholder frame and the price consent screen (design pending, F5) */
+.portal {
+  min-height: 100vh;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+}
+.portal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--border-default);
+  background: #18082f;
+}
+.portal-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--text-on-brand);
+  font-size: 13px;
+}
+.portal-main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+.consent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+.consent-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.consent-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 30px;
+}
+.consent-subtitle,
+.consent-muted {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+.consent-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-default);
+}
+.consent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.consent-table th {
+  padding: 10px 14px;
+  background: var(--color-neutral-100);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+.consent-table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border-subtle);
+  vertical-align: top;
+}
+.consent-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+.consent-path {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+.consent-actions {
+  display: flex;
+  gap: 12px;
+}
+.consent-banner {
+  padding: 12px 14px;
+  border-radius: var(--radius-default);
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 13px;
+}
+.consent-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-default);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

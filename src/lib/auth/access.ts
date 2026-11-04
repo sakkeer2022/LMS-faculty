@@ -24,8 +24,11 @@ export function isFaculty(user: SessionUser) {
   return user.isActive && user.roles.some(role => role.name === FACULTY_ROLE);
 }
 
-/** Where a signed-in faculty member lands when no destination was asked for (the dashboard screen is not designed yet). */
-export const FACULTY_HOME = '/';
+/** Where a signed-in faculty member lands when no destination was asked for (a placeholder until the dashboard is designed). */
+export const FACULTY_HOME = '/home';
+
+/** The price consent screen, shown after sign-in while new or changed prices await acceptance. */
+export const CONSENT_PATH = '/consent';
 
 export function safeRedirect(value: string | null, fallback = FACULTY_HOME) {
   if (!value || !value.startsWith('/') || value.startsWith('//') || /[\\\r\n]/.test(value)) return fallback;
