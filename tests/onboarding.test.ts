@@ -4,70 +4,60 @@ import { fileIssue, stepOfField, validateCredentials } from "@/features/onboardi
 import { EMPTY_CREDENTIALS, type OfferingTree } from "@/features/onboarding/model/types";
 import { formatPaise, gstPercent } from "@/features/portal/model";
 
-// Academic › School › K-12 (leaf with boards and levels); Academic › JEE / NEET (leaf, levels only);
-// Non-academic › Skill (leaf, subjects only)
+// The admin's category tree: Academic › School › K-12 › CBSE › Physics › Class 11 / Class 12,
+// and Non-academic › Skill (a leaf one level down). Each leaf has one offering (its category
+// curriculum): the subject is the leaf itself, board and level are null.
+const own = (curriculumId: string, id: string, name: string) => ({ curriculumId, categoryId: id, board: null, level: null, subject: { id, name } });
 const tree: OfferingTree = {
   nodes: [
     { id: "academic", parentId: null, name: "Academic", isLeaf: false },
     { id: "non", parentId: null, name: "Non-academic", isLeaf: false },
     { id: "school", parentId: "academic", name: "School", isLeaf: false },
-    { id: "k12", parentId: "school", name: "K-12", isLeaf: true },
-    { id: "jee", parentId: "academic", name: "JEE / NEET", isLeaf: true },
+    { id: "k12", parentId: "school", name: "K-12", isLeaf: false },
+    { id: "cbse", parentId: "k12", name: "CBSE", isLeaf: false },
+    { id: "phy", parentId: "cbse", name: "Physics", isLeaf: false },
+    { id: "p11", parentId: "phy", name: "Class 11", isLeaf: true },
+    { id: "p12", parentId: "phy", name: "Class 12", isLeaf: true },
     { id: "skill", parentId: "non", name: "Skill", isLeaf: true },
   ],
-  offerings: [
-    { curriculumId: "c1", categoryId: "k12", board: { id: "cbse", name: "CBSE" }, level: { id: "c11", name: "Class 11" }, subject: { id: "math", name: "Mathematics" } },
-    { curriculumId: "c2", categoryId: "k12", board: { id: "cbse", name: "CBSE" }, level: { id: "c11", name: "Class 11" }, subject: { id: "phy", name: "Physics" } },
-    { curriculumId: "c3", categoryId: "k12", board: { id: "icse", name: "ICSE" }, level: { id: "c10", name: "Class 10" }, subject: { id: "phy", name: "Physics" } },
-    { curriculumId: "c4", categoryId: "jee", board: null, level: { id: "main", name: "JEE Main" }, subject: { id: "phy", name: "Physics" } },
-    { curriculumId: "c5", categoryId: "skill", board: null, level: null, subject: { id: "cs", name: "Computer Science" } },
-  ],
+  offerings: [own("c11", "p11", "Class 11"), own("c12", "p12", "Class 12"), own("cs", "skill", "Skill")],
 };
 
-const kinds = (path: Step[]) => columnsFor(tree, path).map((c) => c.kind);
 const labels = (path: Step[], i: number) => columnsFor(tree, path)[i]!.items.map((x) => x.label);
+const walk = (...ids: string[]): Step[] => ids.map((id) => ({ kind: "node", id }));
 
 describe("column picker", () => {
   it("starts with the streams", () => {
-    expect(kinds([])).toEqual(["node"]);
+    expect(columnsFor(tree, [])).toHaveLength(1);
     expect(labels([], 0)).toEqual(["Academic", "Non-academic"]);
   });
 
-  it("walks categories, then board, level and subject for a leaf with boards", () => {
-    let path: Step[] = [{ kind: "node", id: "academic" }];
-    expect(labels(path, 1)).toEqual(["School", "JEE / NEET"]);
-    path = [...path, { kind: "node", id: "school" }];
-    expect(labels(path, 2)).toEqual(["K-12"]);
-    path = [...path, { kind: "node", id: "k12" }];
-    expect(kinds(path)).toEqual(["node", "node", "node", "board"]);
-    expect(labels(path, 3)).toEqual(["CBSE", "ICSE"]);
-    path = [...path, { kind: "board", id: "cbse" }];
-    expect(kinds(path)).toEqual(["node", "node", "node", "board", "level"]);
-    expect(labels(path, 4)).toEqual(["Class 11"]);
-    path = [...path, { kind: "level", id: "c11" }];
-    expect(kinds(path).at(-1)).toBe("subject");
-    expect(labels(path, 5)).toEqual(["Mathematics", "Physics"]);
-    expect(columnsFor(tree, path)[5]!.items.map((i) => i.curriculumId)).toEqual(["c1", "c2"]);
+  it("follows the category tree to its leaves, which add cards instead of opening a column", () => {
+    const path = walk("academic", "school", "k12", "cbse", "phy");
+    const columns = columnsFor(tree, path);
+    expect(columns.map((c) => c.items.map((i) => i.label))).toEqual([
+      ["Academic", "Non-academic"], ["School"], ["K-12"], ["CBSE"], ["Physics"], ["Class 11", "Class 12"],
+    ]);
+    const last = columns.at(-1)!.items;
+    expect(last.map((i) => [i.curriculumId, i.hasNext])).toEqual([["c11", false], ["c12", false]]);
+    expect(columns[4]!.items[0]).toMatchObject({ hasNext: true, step: { kind: "node", id: "phy" } });
   });
 
-  it("skips the board column when the leaf has no boards, and the level column when it has no levels", () => {
-    expect(kinds([{ kind: "node", id: "academic" }, { kind: "node", id: "jee" }])).toEqual(["node", "node", "level"]);
-    const skill: Step[] = [{ kind: "node", id: "non" }, { kind: "node", id: "skill" }];
-    expect(kinds(skill)).toEqual(["node", "node", "subject"]);
-    expect(labels(skill, 2)).toEqual(["Computer Science"]);
+  it("offers a leaf directly under a stream", () => {
+    expect(columnsFor(tree, walk("non"))[1]!.items).toEqual([{ key: "skill", label: "Skill", hasNext: false, curriculumId: "cs" }]);
   });
 
   it("choosing in an earlier column drops everything to its right", () => {
-    const path: Step[] = [{ kind: "node", id: "academic" }, { kind: "node", id: "school" }, { kind: "node", id: "k12" }];
+    const path = walk("academic", "school", "k12");
     const columns = columnsFor(tree, path);
-    expect(choose(path, columns, 1, { kind: "node", id: "jee" })).toEqual([{ kind: "node", id: "academic" }, { kind: "node", id: "jee" }]);
+    expect(choose(path, columns, 1, { kind: "node", id: "school" })).toEqual(walk("academic", "school"));
     expect(isSelected(path, 1, { kind: "node", id: "school" })).toBe(true);
-    expect(isSelected(path, 1, { kind: "node", id: "jee" })).toBe(false);
+    expect(isSelected(path, 1, { kind: "node", id: "k12" })).toBe(false);
   });
 
-  it("names each card from the root to the level", () => {
-    expect(cardFor(tree, "c1")).toEqual({ curriculumId: "c1", subject: "Mathematics", pathLabel: "Academic › School › K-12 › CBSE › Class 11" });
-    expect(cardFor(tree, "c5")?.pathLabel).toBe("Non-academic › Skill");
+  it("titles each card with the leaf and shows the path above it", () => {
+    expect(cardFor(tree, "c11")).toEqual({ curriculumId: "c11", subject: "Class 11", pathLabel: "Academic › School › K-12 › CBSE › Physics" });
+    expect(cardFor(tree, "cs")?.pathLabel).toBe("Non-academic");
     expect(cardFor(tree, "unknown")).toBeUndefined();
   });
 

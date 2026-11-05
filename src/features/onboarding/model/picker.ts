@@ -1,13 +1,14 @@
-import type { OfferingTree, PickerNode, PickerOffering } from "./types";
+import type { OfferingTree, PickerNode } from "./types";
 
 /**
- * The column picker on screen 43c. A selection path walks the category tree from a root
- * ("Academic") to a bookable leaf, then through the leaf's offerings: board (when any
- * offering has one), level (when any has one) and finally the subject column, where each
- * subject toggles a subject card. Pure functions, unit-tested.
+ * The column picker on screen 43c. The columns follow the admin's category tree
+ * (Categories & content): picking a category opens its sub-categories in the next column,
+ * and a category without sub-categories (a leaf, e.g. "Class 11") toggles a card. Each
+ * leaf has one offering in the catalogue (its category curriculum), and the card is that
+ * curriculumId. Pure functions, unit-tested.
  */
 
-export type Step = { kind: "node"; id: string } | { kind: "board"; id: string } | { kind: "level"; id: string };
+export type Step = { kind: "node"; id: string };
 
 export type ColumnItem = {
   key: string;
@@ -15,110 +16,39 @@ export type ColumnItem = {
   /** Picking it opens another column (a chevron in the design) */
   hasNext: boolean;
   step?: Step;
-  /** Subject items only */
+  /** Leaves only: the card this item adds or removes */
   curriculumId?: string;
 };
 
-export type Column = { key: string; title: string; kind: "node" | "board" | "level" | "subject"; items: ColumnItem[] };
-
-const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
+export type Column = { key: string; title: string; kind: "node"; items: ColumnItem[] };
 
 function childrenOf(tree: OfferingTree, parentId: string | null): PickerNode[] {
   return tree.nodes.filter((n) => n.parentId === parentId);
 }
 
-function uniqueNamed<T extends { id: string; name: string }>(items: (T | null)[]): T[] {
-  const seen = new Map<string, T>();
-  for (const item of items) if (item && !seen.has(item.id)) seen.set(item.id, item);
-  return [...seen.values()];
-}
-
-/** Offerings of the leaf, narrowed by the chosen board and level. */
-function narrowed(tree: OfferingTree, leafId: string, boardId?: string, levelId?: string): PickerOffering[] {
-  return tree.offerings.filter(
-    (o) =>
-      o.categoryId === leafId &&
-      (boardId === undefined || o.board?.id === boardId) &&
-      (levelId === undefined || o.level?.id === levelId),
-  );
+/** The leaf's offering (the first one, should the catalogue ever send more). */
+function curriculumOf(tree: OfferingTree, leafId: string): string | undefined {
+  return tree.offerings.find((o) => o.categoryId === leafId)?.curriculumId;
 }
 
 /** The columns to show for a selection path (the first is always the roots). */
 export function columnsFor(tree: OfferingTree, path: readonly Step[]): Column[] {
-  const columns: Column[] = [];
-  const nodeColumn = (parentId: string | null): Column => ({
+  const column = (parentId: string | null): Column => ({
     key: `node:${parentId ?? "root"}`,
     title: parentId ? "Category" : "Stream",
     kind: "node",
-    items: childrenOf(tree, parentId).map((n) => ({
-      key: n.id,
-      label: n.name,
-      hasNext: true,
-      step: { kind: "node", id: n.id },
-    })),
+    items: childrenOf(tree, parentId).flatMap((n): ColumnItem[] => {
+      if (!n.isLeaf) return [{ key: n.id, label: n.name, hasNext: true, step: { kind: "node", id: n.id } }];
+      const curriculumId = curriculumOf(tree, n.id);
+      return curriculumId ? [{ key: n.id, label: n.name, hasNext: false, curriculumId }] : [];
+    }),
   });
-  columns.push(nodeColumn(null));
-
-  let leafId: string | undefined;
-  let boardId: string | undefined;
-  let levelId: string | undefined;
+  const columns = [column(null)];
   for (const step of path) {
-    if (step.kind === "node") {
-      const node = tree.nodes.find((n) => n.id === step.id);
-      if (!node) break;
-      if (!node.isLeaf) {
-        columns.push(nodeColumn(node.id));
-        continue;
-      }
-      leafId = node.id;
-    } else if (step.kind === "board") boardId = step.id;
-    else levelId = step.id;
+    const node = tree.nodes.find((n) => n.id === step.id);
+    if (!node || node.isLeaf) break;
+    columns.push(column(node.id));
   }
-  if (!leafId) return columns;
-
-  const offerings = narrowed(tree, leafId);
-  const boards = uniqueNamed(offerings.map((o) => o.board));
-  const pathHasBoard = path.some((s) => s.kind === "board");
-  if (boards.length && !pathHasBoard) {
-    columns.push({
-      key: `board:${leafId}`,
-      title: "Board",
-      kind: "board",
-      items: boards.map((b) => ({ key: b.id, label: b.name, hasNext: true, step: { kind: "board", id: b.id } })),
-    });
-    return columns;
-  }
-  if (boards.length) {
-    columns.push({
-      key: `board:${leafId}`,
-      title: "Board",
-      kind: "board",
-      items: boards.map((b) => ({ key: b.id, label: b.name, hasNext: true, step: { kind: "board", id: b.id } })),
-    });
-  }
-
-  const afterBoard = narrowed(tree, leafId, boards.length ? boardId : undefined);
-  const levels = uniqueNamed(afterBoard.map((o) => o.level));
-  const pathHasLevel = path.some((s) => s.kind === "level");
-  if (levels.length) {
-    columns.push({
-      key: `level:${leafId}:${boardId ?? ""}`,
-      title: "Level",
-      kind: "level",
-      items: levels.map((l) => ({ key: l.id, label: l.name, hasNext: true, step: { kind: "level", id: l.id } })),
-    });
-    if (!pathHasLevel) return columns;
-  }
-
-  const final = narrowed(tree, leafId, boards.length ? boardId : undefined, levels.length ? levelId : undefined);
-  columns.push({
-    key: `subject:${leafId}:${boardId ?? ""}:${levelId ?? ""}`,
-    title: "Subject",
-    kind: "subject",
-    items: [...final]
-      .sort((a, b) => byName(a.subject, b.subject))
-      .map((o) => ({ key: o.curriculumId, label: o.subject.name, hasNext: false, curriculumId: o.curriculumId })),
-  });
   return columns;
 }
 
@@ -137,12 +67,13 @@ export function isSelected(path: readonly Step[], index: number, step?: Step) {
 
 export interface SubjectCard {
   curriculumId: string;
+  /** The leaf's name ("Class 11") */
   subject: string;
-  /** "Academic › School › K-12 › CBSE › Class 11" */
+  /** What is above it: "Academic › School › K-12 › CBSE › Physics" */
   pathLabel: string;
 }
 
-/** The card for a curriculum: its subject and the names from the root down to the level. */
+/** The card for a curriculum: the leaf's name and the names from the root down to its parent. */
 export function cardFor(tree: OfferingTree, curriculumId: string): SubjectCard | undefined {
   const offering = tree.offerings.find((o) => o.curriculumId === curriculumId);
   if (!offering) return undefined;
@@ -154,10 +85,12 @@ export function cardFor(tree: OfferingTree, curriculumId: string): SubjectCard |
     names.unshift(node.name);
     node = node.parentId ? tree.nodes.find((n) => n.id === node?.parentId) : undefined;
   }
+  // A category curriculum's subject is the leaf itself, so the path stops above it
+  const ownLeaf = offering.subject.id === offering.categoryId;
   return {
     curriculumId,
     subject: offering.subject.name,
-    pathLabel: [...names, offering.board?.name, offering.level?.name].filter(Boolean).join(" › "),
+    pathLabel: [...(ownLeaf ? names.slice(0, -1) : names), offering.board?.name, offering.level?.name].filter(Boolean).join(" › "),
   };
 }
 

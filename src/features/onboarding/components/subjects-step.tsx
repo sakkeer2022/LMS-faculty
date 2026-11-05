@@ -14,8 +14,8 @@ import type { OfferingTree } from "../model/types";
 
 /**
  * Screen 43c, "What do you teach?": pick a stream, then move through the columns; each
- * subject in the last column adds a card on the right. The columns follow the admin's
- * category tree (Categories & Content) and each leaf's offerings.
+ * category at the end of a branch (e.g. "Class 11") adds a card on the right. The columns
+ * follow the admin's category tree (Categories & content).
  */
 export function SubjectsStep({
   tree,
@@ -68,20 +68,18 @@ export function SubjectsStep({
               <ul key={column.key} className="onboarding-column" aria-label={column.title}>
                 {column.items.length === 0 && <li className="onboarding-column-empty">Nothing to choose here yet</li>}
                 {column.items.map((item) => {
-                  const active =
-                    column.kind === "subject"
-                      ? selected.includes(item.curriculumId as string)
-                      : isSelected(path, index, item.step);
+                  const leaf = item.curriculumId;
+                  const active = leaf ? selected.includes(leaf) : isSelected(path, index, item.step);
                   return (
                     <li key={item.key}>
                       <Button
                         variant="ghost"
                         className="onboarding-column-item"
                         data-active={active}
-                        aria-pressed={column.kind === "subject" ? active : undefined}
-                        aria-current={column.kind !== "subject" && active ? "true" : undefined}
+                        aria-pressed={leaf ? active : undefined}
+                        aria-current={!leaf && active ? "true" : undefined}
                         onClick={() => {
-                          if (column.kind === "subject") onSelected(toggleSubject(selected, item.curriculumId as string));
+                          if (leaf) onSelected(toggleSubject(selected, leaf));
                           else if (item.step) onPath(choose(path, columns, index, item.step));
                         }}
                       >
