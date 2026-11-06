@@ -12,7 +12,7 @@ import {
 
 import { api } from "@/lib/api/client";
 import { loginSchema } from "../schemas/auth";
-import { safeRedirect } from "@/lib/auth/access";
+import { CONSENT_PATH, safeRedirect } from "@/lib/auth/access";
 import { ApiError } from "@/lib/api/contracts";
 
 // One refresh per page load: React strict mode runs effects twice in development, and a second
@@ -77,14 +77,20 @@ export function AuthForm() {
     setPending(true);
 
     try {
-      await api("/auth/faculty/login", {
-        method: "POST",
-        body: JSON.stringify(parsed.data),
-      });
+      const res = await api<{ requiresTermsAcceptance?: boolean }>(
+        "/auth/faculty/login",
+        {
+          method: "POST",
+          body: JSON.stringify(parsed.data),
+        },
+      );
+      // New or changed session prices must be accepted before anything else (LMS-39)
       window.location.assign(
-        safeRedirect(
-          new URLSearchParams(window.location.search).get("redirect"),
-        ),
+        res.data?.requiresTermsAcceptance
+          ? CONSENT_PATH
+          : safeRedirect(
+              new URLSearchParams(window.location.search).get("redirect"),
+            ),
       );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Unable to connect");

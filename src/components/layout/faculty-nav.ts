@@ -51,3 +51,5 @@ export const facultyNavigation: FacultyNavigationGroup[] = [
 export function isNavigationActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
+
+export const facultyPages = facultyNavigation.flatMap((group) => group.items);

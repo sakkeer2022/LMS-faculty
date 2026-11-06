@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
+import { FACULTY_HOME } from "@/lib/auth/access";
 
-// The faculty dashboard is not designed yet; until then the app opens on the login screen.
+// The portal gate (middleware, then requireFaculty) sends a signed-out visitor to /login.
 export default function Home() {
-  redirect("/login");
+  redirect(FACULTY_HOME);
 }
