@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Button, Heading, Text } from "@/components/ui";
 import { ApiError } from "@/lib/api/contracts";
+import { FACULTY_HOME } from "@/lib/auth/access";
 import { decidePriceConsent, formatPaise, getMe, getPriceConsent, gstPercent, type PriceConsent } from "../model";
 import { PortalShell } from "./portal-shell";
 
@@ -23,7 +24,7 @@ export function PriceConsentScreen() {
       .catch(() => window.location.assign("/login?redirect=/consent"));
     getPriceConsent()
       .then((c) => {
-        if (c.status === "accepted") window.location.assign("/home");
+        if (c.status === "accepted") window.location.assign(FACULTY_HOME);
         else setConsent(c);
       })
       .catch((err: unknown) => setError(err instanceof ApiError ? err.message : "Your prices could not be loaded."));
@@ -35,7 +36,7 @@ export function PriceConsentScreen() {
     setError("");
     try {
       const next = await decidePriceConsent(decision, consent.snapshotHash);
-      if (next.status === "accepted") window.location.assign("/home");
+      if (next.status === "accepted") window.location.assign(FACULTY_HOME);
       else {
         setConsent(next);
         setConfirmDecline(false);

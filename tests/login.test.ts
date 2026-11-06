@@ -14,9 +14,9 @@ describe("faculty login", () => {
 
   it("only redirects to paths inside the app", () => {
     expect(safeRedirect("/schedule")).toBe("/schedule");
-    expect(safeRedirect("//evil.example")).toBe("/home");
-    expect(safeRedirect("https://evil.example")).toBe("/home");
-    expect(safeRedirect("/a\\b")).toBe("/home");
-    expect(safeRedirect(null)).toBe("/home");
+    expect(safeRedirect("//evil.example")).toBe("/dashboard");
+    expect(safeRedirect("https://evil.example")).toBe("/dashboard");
+    expect(safeRedirect("/a\\b")).toBe("/dashboard");
+    expect(safeRedirect(null)).toBe("/dashboard");
   });
 });

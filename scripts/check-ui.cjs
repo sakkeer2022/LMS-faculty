@@ -20,7 +20,8 @@ function walk(directory) {
       true,
       ts.ScriptKind.TSX,
     );
-    const primitives = relative.startsWith("components/ui/");
+    // components/shadcn (primitives) and components/layout (portal frame) are shared implementations too
+    const primitives = /^components\/(ui|shadcn|layout)\//.test(relative);
     const forms = relative === "components/ui/Form.tsx";
     function visit(node) {
       if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {

@@ -12,7 +12,10 @@
 | Login screen (form, `login.css`, `login-controls`, brand photos) | `src/features/auth`, `src/components/ui/login-controls.tsx`, `public/auth` | amentorz-admin; faculty copy, text and endpoint differ |
 | `Link`, `cx`, `Form`                                             | `src/components/ui`                                                        | amentorz-admin                                         |
 | `TextField`, `SelectField`, `CheckboxField`, `FileDropField`     | `src/components/ui/fields.tsx`                                             | faculty only (onboarding)                              |
+| shadcn/ui primitives, theme roles in `globals.css`, `cn`         | `src/components/shadcn`, `src/app/globals.css`, `src/lib/utils.ts`         | amentorz-admin (identical; `progress.tsx` faculty only) |
+| Portal frame (shell, sidebar, topbar, page header, empty state)  | `src/components/layout`                                                    | amentorz-admin; navigation and account line differ     |
+| Session gate (`middleware.ts`, `lib/auth/server.ts`), providers  | `src/middleware.ts`, `src/lib/auth/server.ts`, `src/app/providers.tsx`      | amentorz-admin; faculty role and price-consent check   |
 
-Differences on purpose: this app has no login gate in `middleware.ts` yet (the signed-in area will gate on `/auth/me` like the admin does), and its UI is built on the Figma tokens, not the admin's earlier theme. Copied from amentorz-student; the admin is the origin of the API client and the login screen.
+Differences on purpose: the login, onboarding and consent screens use the Figma tokens in `tokens.css` and `components/ui`; the signed-in portal uses the admin's shadcn theme (same values). Copied from amentorz-student; the admin is the origin of the API client and the login screen.
 
 Check `amentorz-backend/src/docs/SHARED_COMPONENTS.md` before writing a helper that the backend or another app may already have.

@@ -1,7 +1,7 @@
-import { HomeScreen } from "@/features/portal/components/home-screen";
+import { redirect } from "next/navigation";
+import { FACULTY_HOME } from "@/lib/auth/access";
 
-export const metadata = { title: "Home" };
-
+// The old post-consent landing page; the dashboard replaces it. Kept so existing links still work.
 export default function Page() {
-  return <HomeScreen />;
+  redirect(FACULTY_HOME);
 }

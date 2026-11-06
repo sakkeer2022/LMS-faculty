@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Manrope } from "next/font/google";
+import { Providers } from "./providers";
 import "./globals.css";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
@@ -15,7 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip" href="#main">
           Skip to content
         </a>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
