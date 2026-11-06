@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ButtonLink, Heading, Text } from "@/components/ui";
+import Link from "next/link";
+import { Button } from "@/components/shadcn/button";
 import { ApiError } from "@/lib/api/contracts";
 import { loadCatalogue, startOnboarding, submitApplication } from "../model/api";
 import type { Step } from "../model/picker";
@@ -169,16 +170,16 @@ export function OnboardingWizard() {
         <BrandPanel />
         <main id="main" className="login-panel onboarding-panel" ref={main}>
           <section className="onboarding-form" aria-labelledby="invalid-title">
-            <Heading level={1} id="invalid-title" className="onboarding-title" tabIndex={-1}>
+            <h1 id="invalid-title" className="onboarding-title" tabIndex={-1}>
               This link can&apos;t be used
-            </Heading>
-            <Text className="onboarding-subtitle">
+            </h1>
+            <p className="onboarding-subtitle">
               {loadError ||
                 "This invitation link is invalid, already used or expired. Ask your Amentorz contact to send you a new invitation."}
-            </Text>
-            <ButtonLink href="/login" variant="outline">
-              Go to sign in
-            </ButtonLink>
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/login">Go to sign in</Link>
+            </Button>
           </section>
         </main>
       </div>

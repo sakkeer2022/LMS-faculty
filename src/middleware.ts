@@ -24,7 +24,7 @@ export function middleware(request: NextRequest) {
   headers.set('x-pathname', destination);
   return NextResponse.next({ request: { headers } });
 }
-// The signed-in portal (src/components/layout/faculty/navigation.ts) plus /home and /consent
+// The signed-in portal (src/components/layout/faculty-nav.ts) plus /home and /consent
 export const config = {
   matcher: [
     '/home',
@@ -36,7 +36,7 @@ export const config = {
     '/daily-logs/:path*',
     '/homework/:path*',
     '/library/:path*',
-    '/progress-reports/:path*',
+    '/progress/:path*',
     '/performance/:path*',
     '/earnings/:path*',
     '/reviews/:path*',

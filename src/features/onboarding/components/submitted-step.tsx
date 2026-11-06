@@ -1,4 +1,5 @@
-import { ButtonLink, Heading, Text } from "@/components/ui";
+import Link from "next/link";
+import { Button } from "@/components/shadcn/button";
 import { TIMELINE } from "../model/content";
 import type { ApplicationResult } from "../model/types";
 
@@ -12,13 +13,13 @@ export function SubmittedStep({ result, homeUrl }: { result: ApplicationResult; 
         <path d="M8 29l17 17L64 8" fill="none" stroke="#22c55e" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <div className="onboarding-head">
-        <Heading level={1} id="submitted-title" className="onboarding-title" tabIndex={-1}>
+        <h1 id="submitted-title" className="onboarding-title" tabIndex={-1}>
           Application submitted
-        </Heading>
-        <Text className="onboarding-subtitle">
+        </h1>
+        <p className="onboarding-subtitle">
           Thanks, {firstName}. Your application has been submitted successfully. We&apos;ll review your information and
           update you as your application progresses.
-        </Text>
+        </p>
       </div>
       <p className="onboarding-reference">
         Application reference <span>{result.applicationReference}</span>
@@ -48,9 +49,9 @@ export function SubmittedStep({ result, homeUrl }: { result: ApplicationResult; 
           </li>
         ))}
       </ol>
-      <ButtonLink href={homeUrl} className="onboarding-home">
-        Back to Amentorz
-      </ButtonLink>
+      <Button asChild className="onboarding-home">
+        <Link href={homeUrl}>Back to Amentorz</Link>
+      </Button>
     </section>
   );
 }

@@ -1,8 +1,8 @@
 /* Signed-in placeholder frame and the price consent screen (design pending, F5) */
 .portal {
   min-height: 100vh;
-  background: var(--bg-canvas);
-  color: var(--text-primary);
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-manrope), system-ui, sans-serif;
 }
 .portal-header {
@@ -10,14 +10,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 32px;
-  border-bottom: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border);
   background: #18082f;
 }
 .portal-user {
   display: flex;
   align-items: center;
   gap: 14px;
-  color: var(--text-on-brand);
+  color: var(--primary-foreground);
   font-size: 13px;
 }
 .portal-main {
@@ -30,9 +30,9 @@
   flex-direction: column;
   gap: 20px;
   padding: 28px;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
 }
 .consent-head {
   display: flex;
@@ -54,8 +54,8 @@
 }
 .consent-table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-default);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 .consent-table {
   width: 100%;
@@ -64,7 +64,7 @@
 }
 .consent-table th {
   padding: 10px 14px;
-  background: var(--color-neutral-100);
+  background: var(--sunken);
   color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
@@ -82,7 +82,7 @@
 .consent-path {
   display: block;
   margin-top: 2px;
-  color: var(--text-tertiary);
+  color: var(--muted-foreground);
   font-size: 11px;
 }
 .consent-actions {
@@ -91,7 +91,7 @@
 }
 .consent-banner {
   padding: 12px 14px;
-  border-radius: var(--radius-default);
+  border-radius: var(--radius);
   background: #fff7ed;
   color: #9a3412;
   font-size: 13px;
@@ -101,8 +101,8 @@
   flex-direction: column;
   gap: 12px;
   padding: 14px;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-default);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 .sr-only {
   position: absolute;

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button, Heading, Text } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
 import { ApiError } from "@/lib/api/contracts";
 import { FACULTY_HOME } from "@/lib/auth/access";
 import { decidePriceConsent, formatPaise, getMe, getPriceConsent, gstPercent, type PriceConsent } from "../model";
@@ -55,13 +55,13 @@ export function PriceConsentScreen() {
     <PortalShell name={name}>
       <section className="consent" aria-labelledby="consent-title">
         <div className="consent-head">
-          <Heading level={1} id="consent-title" className="consent-title">
+          <h1 id="consent-title" className="consent-title">
             Review your session prices
-          </Heading>
-          <Text className="consent-subtitle">
+          </h1>
+          <p className="consent-subtitle">
             Amentorz set a price for each subject you teach. Students pay the session price plus GST. Accept the prices
             to start using your tutor account.
-          </Text>
+          </p>
         </div>
 
         {!consent && !error && (
@@ -70,7 +70,7 @@ export function PriceConsentScreen() {
           </p>
         )}
         {error && (
-          <p className="ui-field-error" role="alert">
+          <p className="text-xs leading-4 text-destructive" role="alert">
             {error}
           </p>
         )}
@@ -121,23 +121,23 @@ export function PriceConsentScreen() {
 
             {confirmDecline ? (
               <div className="consent-confirm" role="group" aria-label="Confirm decline">
-                <Text>Decline these prices? Your account stays inactive until new prices are agreed.</Text>
+                <p>Decline these prices? Your account stays inactive until new prices are agreed.</p>
                 <div className="consent-actions">
-                  <Button onClick={() => void decide("reject")} disabled={Boolean(pending)} aria-busy={pending === "reject" || undefined}>
+                  <Button type="button" onClick={() => void decide("reject")} disabled={Boolean(pending)} aria-busy={pending === "reject" || undefined}>
                     {pending === "reject" ? "Declining…" : "Yes, decline"}
                   </Button>
-                  <Button variant="outline" onClick={() => setConfirmDecline(false)} disabled={Boolean(pending)}>
+                  <Button type="button" variant="outline" onClick={() => setConfirmDecline(false)} disabled={Boolean(pending)}>
                     Cancel
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="consent-actions">
-                <Button onClick={() => void decide("accept")} disabled={Boolean(pending)} aria-busy={pending === "accept" || undefined}>
+                <Button type="button" onClick={() => void decide("accept")} disabled={Boolean(pending)} aria-busy={pending === "accept" || undefined}>
                   {pending === "accept" ? "Accepting…" : consent.status === "rejected" ? "Accept prices instead" : "Accept prices"}
                 </Button>
                 {consent.status !== "rejected" && (
-                  <Button variant="outline" onClick={() => setConfirmDecline(true)} disabled={Boolean(pending)}>
+                  <Button type="button" variant="outline" onClick={() => setConfirmDecline(true)} disabled={Boolean(pending)}>
                     Decline
                   </Button>
                 )}

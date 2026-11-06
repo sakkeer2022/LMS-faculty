@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Bell, PanelLeft, Search } from "lucide-react";
-import { useLogout, useMe } from "@/features/portal/api";
 import { Avatar, AvatarFallback } from "@/components/shadcn/avatar";
 import { Button } from "@/components/shadcn/button";
 import {
@@ -14,15 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/shadcn/dropdown-menu";
 import { Input } from "@/components/shadcn/input";
-import { facultyPages } from "./faculty/navigation";
+import { facultyNavigation } from "./faculty-nav";
 import { initialsOf } from "./initials";
+import type { ShellAccount } from "./sidebar-nav";
 
-// Page search only, as in the admin topbar: record search needs backend endpoints that do not exist yet
+const pages = facultyNavigation.flatMap((group) => group.items);
+
 function NavigationSearch() {
   const [query, setQuery] = useState("");
-  const matches = query
-    ? facultyPages.filter(([label]) => label.toLowerCase().includes(query.toLowerCase()))
-    : [];
+  const matches = query ? pages.filter(([label]) => label.toLowerCase().includes(query.toLowerCase())) : [];
   return (
     <div className="relative hidden w-full max-w-[437px] sm:block">
       <Search
@@ -42,7 +41,7 @@ function NavigationSearch() {
         <div className="absolute top-full right-0 left-0 z-20 mt-1 rounded-md border bg-popover p-1 shadow-card">
           {matches.map(([label, href]) => (
             <Link
-              key={href}
+              key={label}
               href={href}
               onClick={() => setQuery("")}
               className="block rounded-md px-3 py-2 text-sm hover:bg-accent"
@@ -50,18 +49,24 @@ function NavigationSearch() {
               {label}
             </Link>
           ))}
-          {!matches.length && (
-            <p className="px-3 py-2 text-sm text-muted-foreground">No matching pages</p>
-          )}
+          {!matches.length && <p className="px-3 py-2 text-sm text-muted-foreground">No matching pages</p>}
         </div>
       )}
     </div>
   );
 }
 
-export function Topbar({ onToggleNavigation }: { onToggleNavigation: () => void }) {
-  const me = useMe().data;
-  const logout = useLogout();
+export function Topbar({
+  account,
+  onToggleNavigation,
+  onLogout,
+  loggingOut,
+}: {
+  account: ShellAccount;
+  onToggleNavigation: () => void;
+  onLogout: () => void;
+  loggingOut?: boolean;
+}) {
   return (
     <header className="flex h-16 shrink-0 items-center gap-3 bg-card px-4 sm:px-6">
       <Button variant="ghost" size="icon" aria-label="Toggle navigation" onClick={onToggleNavigation}>
@@ -89,7 +94,7 @@ export function Topbar({ onToggleNavigation }: { onToggleNavigation: () => void 
             >
               <Avatar className="size-8">
                 <AvatarFallback className="bg-accent text-xs font-semibold text-accent-foreground">
-                  {initialsOf(me?.fullName)}
+                  {initialsOf(account.name)}
                 </AvatarFallback>
               </Avatar>
             </button>
@@ -99,7 +104,7 @@ export function Topbar({ onToggleNavigation }: { onToggleNavigation: () => void 
               <Link href="/profile">My profile</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled={logout.isPending} onSelect={() => logout.mutate()}>
+            <DropdownMenuItem disabled={loggingOut} onSelect={onLogout}>
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

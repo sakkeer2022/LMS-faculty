@@ -1,5 +1,3 @@
-// Faculty portal navigation, Figma "Screen/17 · Dashboard" sidebar. Mirrors amentorz-admin
-// src/components/layout/admin/navigation.ts; the portal has no base path, so hrefs are absolute.
 export type FacultyIcon =
   | "dashboard"
   | "availability"
@@ -8,15 +6,18 @@ export type FacultyIcon =
   | "logs"
   | "homework"
   | "library"
-  | "reports"
+  | "progress"
   | "performance"
   | "earnings"
   | "reviews"
   | "profile";
+
 export type FacultyNavigationGroup = {
   label: string;
   items: [title: string, href: string, icon: FacultyIcon][];
 };
+
+// Destinations and grouping from the Figma "Faculty sidebar" (TEACH / RECORD / EARN / ACCOUNT).
 export const facultyNavigation: FacultyNavigationGroup[] = [
   {
     label: "Teach",
@@ -33,7 +34,7 @@ export const facultyNavigation: FacultyNavigationGroup[] = [
       ["Daily Logs", "/daily-logs", "logs"],
       ["Homework", "/homework", "homework"],
       ["Library", "/library", "library"],
-      ["Progress Reports", "/progress-reports", "reports"],
+      ["Progress Reports", "/progress", "progress"],
     ],
   },
   {
@@ -47,14 +48,8 @@ export const facultyNavigation: FacultyNavigationGroup[] = [
   { label: "Account", items: [["Profile", "/profile", "profile"]] },
 ];
 
-export const facultyPages = facultyNavigation.flatMap((group) => group.items);
-
 export function isNavigationActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
-export function facultyPageTitle(pathname: string) {
-  return (
-    facultyPages.find(([, href]) => isNavigationActive(pathname, href))?.[0] ??
-    "Page not found"
-  );
-}
+
+export const facultyPages = facultyNavigation.flatMap((group) => group.items);

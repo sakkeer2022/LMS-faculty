@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef } from "react";
-import { Button, CheckboxField, Heading, Text } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
+import { CheckboxField } from "./fields";
 import {
   cardFor,
   choose,
@@ -53,12 +54,12 @@ export function SubjectsStep({
   return (
     <section className="onboarding-subjects" aria-labelledby="subjects-title">
       <div className="onboarding-head">
-        <Heading level={1} id="subjects-title" className="onboarding-title" tabIndex={-1}>
+        <h1 id="subjects-title" className="onboarding-title" tabIndex={-1}>
           What do you teach?
-        </Heading>
-        <Text className="onboarding-subtitle">
+        </h1>
+        <p className="onboarding-subtitle">
           Pick a stream, then move through the columns to quickly add every subject combination you teach.
-        </Text>
+        </p>
       </div>
 
       <div className="onboarding-subjects-body">
@@ -72,7 +73,7 @@ export function SubjectsStep({
                   const active = leaf ? selected.includes(leaf) : isSelected(path, index, item.step);
                   return (
                     <li key={item.key}>
-                      <Button
+                      <Button type="button"
                         variant="ghost"
                         className="onboarding-column-item"
                         data-active={active}
@@ -114,10 +115,10 @@ export function SubjectsStep({
 
         <aside className="onboarding-cards" aria-labelledby="cards-title">
           <div className="onboarding-cards-head">
-            <Heading level={2} id="cards-title" className="onboarding-cards-title">
+            <h2 id="cards-title" className="onboarding-cards-title">
               Subjects
-            </Heading>
-            <Text className="onboarding-cards-sub">Teaching profiles you opted</Text>
+            </h2>
+            <p className="onboarding-cards-sub">Teaching profiles you opted</p>
           </div>
           <ul className="onboarding-card-list" aria-live="polite">
             {cards.length === 0 && (
@@ -129,7 +130,7 @@ export function SubjectsStep({
                   <p className="onboarding-card-subject">{card.subject}</p>
                   <p className="onboarding-card-path">{card.pathLabel}</p>
                 </div>
-                <Button
+                <Button type="button"
                   variant="ghost"
                   className="onboarding-card-remove"
                   aria-label={`Remove ${card.subject}, ${card.pathLabel}`}
@@ -143,18 +144,18 @@ export function SubjectsStep({
             ))}
           </ul>
           {selected.length >= MAX_SUBJECTS && (
-            <p className="ui-field-hint">You can add up to {MAX_SUBJECTS} subjects.</p>
+            <p className="text-[11px] leading-4 text-muted-foreground">You can add up to {MAX_SUBJECTS} subjects.</p>
           )}
           {error && (
-            <p className="ui-field-error" role="alert">
+            <p className="text-xs leading-4 text-destructive" role="alert">
               {error}
             </p>
           )}
           <div className="onboarding-cards-actions">
-            <Button variant="ghost" className="onboarding-back" onClick={onBack}>
+            <Button type="button" variant="ghost" className="onboarding-back" onClick={onBack}>
               Back
             </Button>
-            <Button onClick={onContinue}>Continue to documents</Button>
+            <Button type="button" onClick={onContinue}>Continue to documents</Button>
           </div>
         </aside>
       </div>

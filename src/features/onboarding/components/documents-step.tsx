@@ -1,5 +1,6 @@
 "use client";
-import { Button, CheckboxField, FileDropField, Form, Heading, Text } from "@/components/ui";
+import { Button } from "@/components/shadcn/button";
+import { CheckboxField, FileDropField, Form } from "./fields";
 import { ACCEPT_ATTRIBUTE, type FieldErrors } from "../model/validation";
 import { DOCUMENTS, type DocumentField } from "../model/types";
 
@@ -37,12 +38,12 @@ export function DocumentsStep({
       }}
     >
       <div className="onboarding-head">
-        <Heading level={1} id="documents-title" className="onboarding-title" tabIndex={-1}>
+        <h1 id="documents-title" className="onboarding-title" tabIndex={-1}>
           Documents
-        </Heading>
-        <Text className="onboarding-subtitle">
+        </h1>
+        <p className="onboarding-subtitle">
           Operations verifies these before your profile goes live. PDF or image, up to 10 MB each.
-        </Text>
+        </p>
       </div>
       <div className="onboarding-documents">
         {DOCUMENTS.map((doc) => (
@@ -66,7 +67,7 @@ export function DocumentsStep({
         error={errors.declarationAccepted}
       />
       {formError && (
-        <p className="ui-field-error onboarding-form-error" role="alert">
+        <p className="text-xs leading-4 text-destructive onboarding-form-error" role="alert">
           {formError}
         </p>
       )}
@@ -74,7 +75,7 @@ export function DocumentsStep({
         <Button type="submit" disabled={pending} aria-busy={pending || undefined}>
           {pending ? "Submitting…" : "Submit application"}
         </Button>
-        <Button variant="ghost" className="onboarding-back" onClick={onBack} disabled={pending}>
+        <Button type="button" variant="ghost" className="onboarding-back" onClick={onBack} disabled={pending}>
           Back
         </Button>
       </div>

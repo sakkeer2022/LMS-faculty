@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
-import { facultyPages } from "@/components/layout/faculty/navigation";
+import { facultyPages } from "@/components/layout/faculty-nav";
 
 // Sidebar sections without a screen yet, as amentorz-admin src/app/(admin)/admin/[section]/page.tsx
 const sections = new Map(

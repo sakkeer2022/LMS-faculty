@@ -13,7 +13,6 @@ npm run dev              # http://localhost:3003
 | Script              | Purpose                                                       |
 | ------------------- | ------------------------------------------------------------- |
 | `npm run typecheck` | TypeScript, strict                                            |
-| `npm run lint`      | UI lint: native controls and headings only in `components/ui` |
 | `npm test`          | Vitest                                                        |
 | `npm run build`     | Production build                                              |
 
@@ -21,7 +20,7 @@ npm run dev              # http://localhost:3003
 
 ## Login (`/login`)
 
-Built from Figma "Amentorz-webapp" "Screen/02 · Login", node 3:4730, in `src/features/auth` (form, zod schema, `login.css`) and `src/app/(auth)`. It signs in with `POST /auth/faculty/login` (with `rememberMe` from "Keep me signed in"), then goes to `/consent` when the backend reports `requiresTermsAcceptance` (price consent pending), otherwise to the `redirect` path or `/dashboard`. The backend refuses sign-in until the tutor is approved and every subject card has a price (`FACULTY_PENDING_REVIEW`, `FACULTY_PENDING_PRICING`, `FACULTY_REJECTED`, `FACULTY_SUSPENDED` in `ApiError.code`). The student landing page links here as "Faculty login" (set `NEXT_PUBLIC_FACULTY_URL` there). "Forgot password?" goes to `/recovery`. `/` redirects to `/dashboard` (signed-out visitors go on to `/login`).
+Built from Figma "Amentorz-webapp" "Screen/02 · Login", node 3:4730, in `src/features/auth` (form, zod schema), `src/components/auth` (controls, brand panel) and `src/app/(auth)`. It signs in with `POST /auth/faculty/login` (with `rememberMe` from "Keep me signed in"), then goes to `/consent` when the backend reports `requiresTermsAcceptance` (price consent pending), otherwise to the `redirect` path or `/dashboard`. The backend refuses sign-in until the tutor is approved and every subject card has a price (`FACULTY_PENDING_REVIEW`, `FACULTY_PENDING_PRICING`, `FACULTY_REJECTED`, `FACULTY_SUSPENDED` in `ApiError.code`). The student landing page links here as "Faculty login" (set `NEXT_PUBLIC_FACULTY_URL` there). "Forgot password?" goes to `/recovery`. `/` redirects to `/dashboard` (signed-out visitors go on to `/login`).
 
 ## Forgot password (`/recovery`)
 
@@ -52,6 +51,6 @@ Built from Figma "Screen/17 · Dashboard — logs blocked" with the same structu
 
 ## Layout
 
-`src/app` routes · `src/features/<feature>` screens · `src/components/ui`, `src/components/shadcn` and `src/components/layout` the only places for native `button`, `input`, `form` and headings · `src/lib/api` the API client (CSRF, refresh) · `src/lib/auth` session types · `src/styles/tokens.css` the Figma foundations (node 35:2) · `public/auth` Figma assets (downloaded; the Figma URLs expire).
+`src/app` routes · `src/features/<feature>` screens · `src/components/shadcn` shadcn/ui primitives (Tailwind v4) · `src/components/layout` the faculty shell (sidebar with icon rail, mobile drawer, top bar) and page helpers · `src/components/data-table` TanStack Table `DataTable` · `src/features/onboarding` and `src/features/portal` the invitation wizard and the portal (consent, session) screens · `src/components/auth` login and recovery blocks · `src/lib/api` the API client (CSRF, refresh) · `src/lib/auth` session types · `src/app/globals.css` the Figma foundations (node 35:2) as Tailwind tokens · `public/auth` Figma assets (downloaded; the Figma URLs expire).
 
 Read `AGENTS.md` for the rules and `SHARED.md` for what is shared with the other apps.

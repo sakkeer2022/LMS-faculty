@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import "@/features/auth/login.css";
 import "@/features/onboarding/onboarding.css";
 import { OnboardingWizard } from "@/features/onboarding/components/onboarding-wizard";
 

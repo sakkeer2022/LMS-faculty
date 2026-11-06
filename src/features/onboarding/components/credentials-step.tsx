@@ -1,5 +1,7 @@
 "use client";
-import { Button, Form, Heading, Link, SelectField, Text, TextField } from "@/components/ui";
+import Link from "next/link";
+import { Button } from "@/components/shadcn/button";
+import { Form, SelectField, TextField } from "./fields";
 import { TEACHING_EXPERIENCE, type Credentials } from "../model/types";
 import type { FieldErrors } from "../model/validation";
 
@@ -28,12 +30,12 @@ export function CredentialsStep({
       aria-labelledby="credentials-title"
     >
       <div className="onboarding-head">
-        <Heading level={1} id="credentials-title" className="onboarding-title" tabIndex={-1}>
+        <h1 id="credentials-title" className="onboarding-title" tabIndex={-1}>
           Your credentials
-        </Heading>
-        <Text className="onboarding-subtitle">
+        </h1>
+        <p className="onboarding-subtitle">
           We verify every tutor before they appear in search. This usually takes 3–5 working days.
-        </Text>
+        </p>
       </div>
       <div className="onboarding-grid">
         <TextField
