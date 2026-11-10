@@ -15,8 +15,9 @@ import type { OfferingTree } from "../model/types";
 
 /**
  * Screen 43c, "What do you teach?": pick a stream, then move through the columns; each
- * category at the end of a branch (e.g. "Class 11") adds a card on the right. The columns
- * follow the admin's category tree (Categories & content).
+ * category at the end of a branch (e.g. "Class 11") opens a last column of subjects, and each
+ * subject adds a card on the right. The columns follow the admin's category tree
+ * (Categories & content).
  */
 export function SubjectsStep({
   tree,
@@ -58,7 +59,7 @@ export function SubjectsStep({
           What do you teach?
         </h1>
         <p className="onboarding-subtitle">
-          Pick a stream, then move through the columns to quickly add every subject combination you teach.
+          Pick a stream, then move through the columns to the subject you teach. Add every subject and class you cover.
         </p>
       </div>
 
