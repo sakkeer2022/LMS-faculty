@@ -4,10 +4,10 @@ import { fileIssue, stepOfField, validateCredentials } from "@/features/onboardi
 import { EMPTY_CREDENTIALS, type OfferingTree } from "@/features/onboarding/model/types";
 import { formatPaise, gstPercent } from "@/features/portal/model";
 
-// The admin's category tree: Academic › School › K-12 › CBSE › Physics › Class 11 / Class 12,
-// and Non-academic › Skill (a leaf one level down). Each leaf has one offering (its category
-// curriculum): the subject is the leaf itself, board and level are null.
-const own = (curriculumId: string, id: string, name: string) => ({ curriculumId, categoryId: id, board: null, level: null, subject: { id, name } });
+// The admin's category tree: Academic › School › K-12 › CBSE › Class 11 / Class 12 / Class 9,
+// and Non-academic › Skill (a leaf one level down). A leaf offers subjects, each one offering
+// (board and level null). Class 9 has no subject yet, so the picker hides it.
+const offer = (curriculumId: string, categoryId: string, id: string, name: string) => ({ curriculumId, categoryId, board: null, level: null, subject: { id, name } });
 const tree: OfferingTree = {
   nodes: [
     { id: "academic", parentId: null, name: "Academic", isLeaf: false },
@@ -15,12 +15,15 @@ const tree: OfferingTree = {
     { id: "school", parentId: "academic", name: "School", isLeaf: false },
     { id: "k12", parentId: "school", name: "K-12", isLeaf: false },
     { id: "cbse", parentId: "k12", name: "CBSE", isLeaf: false },
-    { id: "phy", parentId: "cbse", name: "Physics", isLeaf: false },
-    { id: "p11", parentId: "phy", name: "Class 11", isLeaf: true },
-    { id: "p12", parentId: "phy", name: "Class 12", isLeaf: true },
+    { id: "p11", parentId: "cbse", name: "Class 11", isLeaf: true },
+    { id: "p12", parentId: "cbse", name: "Class 12", isLeaf: true },
+    { id: "p9", parentId: "cbse", name: "Class 9", isLeaf: true },
     { id: "skill", parentId: "non", name: "Skill", isLeaf: true },
   ],
-  offerings: [own("c11", "p11", "Class 11"), own("c12", "p12", "Class 12"), own("cs", "skill", "Skill")],
+  offerings: [
+    offer("c11p", "p11", "phy", "Physics"), offer("c11c", "p11", "chem", "Chemistry"),
+    offer("c12p", "p12", "phy", "Physics"), offer("cs", "skill", "cod", "Coding"),
+  ],
 };
 
 const labels = (path: Step[], i: number) => columnsFor(tree, path)[i]!.items.map((x) => x.label);
@@ -32,19 +35,24 @@ describe("column picker", () => {
     expect(labels([], 0)).toEqual(["Academic", "Non-academic"]);
   });
 
-  it("follows the category tree to its leaves, which add cards instead of opening a column", () => {
-    const path = walk("academic", "school", "k12", "cbse", "phy");
+  it("follows the category tree to a leaf, which opens a column of its subjects", () => {
+    const path = walk("academic", "school", "k12", "cbse", "p11");
     const columns = columnsFor(tree, path);
     expect(columns.map((c) => c.items.map((i) => i.label))).toEqual([
-      ["Academic", "Non-academic"], ["School"], ["K-12"], ["CBSE"], ["Physics"], ["Class 11", "Class 12"],
+      ["Academic", "Non-academic"], ["School"], ["K-12"], ["CBSE"], ["Class 11", "Class 12"], ["Physics", "Chemistry"],
     ]);
-    const last = columns.at(-1)!.items;
-    expect(last.map((i) => [i.curriculumId, i.hasNext])).toEqual([["c11", false], ["c12", false]]);
-    expect(columns[4]!.items[0]).toMatchObject({ hasNext: true, step: { kind: "node", id: "phy" } });
+    const last = columns.at(-1)!;
+    expect(last.kind).toBe("subject");
+    expect(last.items.map((i) => [i.curriculumId, i.hasNext])).toEqual([["c11p", false], ["c11c", false]]);
+    expect(columns[4]!.items[0]).toMatchObject({ hasNext: true, step: { kind: "node", id: "p11" } });
   });
 
-  it("offers a leaf directly under a stream", () => {
-    expect(columnsFor(tree, walk("non"))[1]!.items).toEqual([{ key: "skill", label: "Skill", hasNext: false, curriculumId: "cs" }]);
+  it("hides a leaf that has no subject yet", () => {
+    expect(labels(walk("academic", "school", "k12", "cbse"), 4)).toEqual(["Class 11", "Class 12"]);
+  });
+
+  it("opens the subjects of a leaf directly under a stream", () => {
+    expect(columnsFor(tree, walk("non", "skill"))[2]!.items).toEqual([{ key: "cs", label: "Coding", hasNext: false, curriculumId: "cs" }]);
   });
 
   it("choosing in an earlier column drops everything to its right", () => {
@@ -55,9 +63,9 @@ describe("column picker", () => {
     expect(isSelected(path, 1, { kind: "node", id: "k12" })).toBe(false);
   });
 
-  it("titles each card with the leaf and shows the path above it", () => {
-    expect(cardFor(tree, "c11")).toEqual({ curriculumId: "c11", subject: "Class 11", pathLabel: "Academic › School › K-12 › CBSE › Physics" });
-    expect(cardFor(tree, "cs")?.pathLabel).toBe("Non-academic");
+  it("titles each card with the subject and shows the leaf path", () => {
+    expect(cardFor(tree, "c11p")).toEqual({ curriculumId: "c11p", subject: "Physics", pathLabel: "Academic › School › K-12 › CBSE › Class 11" });
+    expect(cardFor(tree, "cs")?.pathLabel).toBe("Non-academic › Skill");
     expect(cardFor(tree, "unknown")).toBeUndefined();
   });
 

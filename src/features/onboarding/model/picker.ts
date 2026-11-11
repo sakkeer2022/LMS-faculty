@@ -3,9 +3,9 @@ import type { OfferingTree, PickerNode } from "./types";
 /**
  * The column picker on screen 43c. The columns follow the admin's category tree
  * (Categories & content): picking a category opens its sub-categories in the next column,
- * and a category without sub-categories (a leaf, e.g. "Class 11") toggles a card. Each
- * leaf has one offering in the catalogue (its category curriculum), and the card is that
- * curriculumId. Pure functions, unit-tested.
+ * and a category without sub-categories (a leaf, e.g. "Class 11") opens a last column with
+ * its subjects. Each subject is one offering in the catalogue and toggles a card: the card
+ * is that curriculumId. Pure functions, unit-tested.
  */
 
 export type Step = { kind: "node"; id: string };
@@ -16,19 +16,18 @@ export type ColumnItem = {
   /** Picking it opens another column (a chevron in the design) */
   hasNext: boolean;
   step?: Step;
-  /** Leaves only: the card this item adds or removes */
+  /** Subjects only: the card this item adds or removes */
   curriculumId?: string;
 };
 
-export type Column = { key: string; title: string; kind: "node"; items: ColumnItem[] };
+export type Column = { key: string; title: string; kind: "node" | "subject"; items: ColumnItem[] };
 
 function childrenOf(tree: OfferingTree, parentId: string | null): PickerNode[] {
   return tree.nodes.filter((n) => n.parentId === parentId);
 }
 
-/** The leaf's offering (the first one, should the catalogue ever send more). */
-function curriculumOf(tree: OfferingTree, leafId: string): string | undefined {
-  return tree.offerings.find((o) => o.categoryId === leafId)?.curriculumId;
+function offeringsOf(tree: OfferingTree, leafId: string) {
+  return tree.offerings.filter((o) => o.categoryId === leafId);
 }
 
 /** The columns to show for a selection path (the first is always the roots). */
@@ -37,16 +36,32 @@ export function columnsFor(tree: OfferingTree, path: readonly Step[]): Column[] 
     key: `node:${parentId ?? "root"}`,
     title: parentId ? "Category" : "Stream",
     kind: "node",
-    items: childrenOf(tree, parentId).flatMap((n): ColumnItem[] => {
-      if (!n.isLeaf) return [{ key: n.id, label: n.name, hasNext: true, step: { kind: "node", id: n.id } }];
-      const curriculumId = curriculumOf(tree, n.id);
-      return curriculumId ? [{ key: n.id, label: n.name, hasNext: false, curriculumId }] : [];
-    }),
+    // A leaf is listed only while it has a subject to pick
+    items: childrenOf(tree, parentId).flatMap((n): ColumnItem[] =>
+      n.isLeaf && offeringsOf(tree, n.id).length === 0
+        ? []
+        : [{ key: n.id, label: n.name, hasNext: true, step: { kind: "node", id: n.id } }],
+    ),
+  });
+  const subjects = (leafId: string): Column => ({
+    key: `subject:${leafId}`,
+    title: "Subject",
+    kind: "subject",
+    items: offeringsOf(tree, leafId).map((o) => ({
+      key: o.curriculumId,
+      label: o.subject.name,
+      hasNext: false,
+      curriculumId: o.curriculumId,
+    })),
   });
   const columns = [column(null)];
   for (const step of path) {
     const node = tree.nodes.find((n) => n.id === step.id);
-    if (!node || node.isLeaf) break;
+    if (!node) break;
+    if (node.isLeaf) {
+      columns.push(subjects(node.id));
+      break;
+    }
     columns.push(column(node.id));
   }
   return columns;
@@ -67,13 +82,13 @@ export function isSelected(path: readonly Step[], index: number, step?: Step) {
 
 export interface SubjectCard {
   curriculumId: string;
-  /** The leaf's name ("Class 11") */
+  /** The subject ("Physics") */
   subject: string;
-  /** What is above it: "Academic › School › K-12 › CBSE › Physics" */
+  /** The leaf it is taught in: "Academic › School › K-12 › CBSE › Physics › Class 11" */
   pathLabel: string;
 }
 
-/** The card for a curriculum: the leaf's name and the names from the root down to its parent. */
+/** The card for a curriculum: the subject and the names from the root down to its leaf. */
 export function cardFor(tree: OfferingTree, curriculumId: string): SubjectCard | undefined {
   const offering = tree.offerings.find((o) => o.curriculumId === curriculumId);
   if (!offering) return undefined;
@@ -85,12 +100,10 @@ export function cardFor(tree: OfferingTree, curriculumId: string): SubjectCard |
     names.unshift(node.name);
     node = node.parentId ? tree.nodes.find((n) => n.id === node?.parentId) : undefined;
   }
-  // A category curriculum's subject is the leaf itself, so the path stops above it
-  const ownLeaf = offering.subject.id === offering.categoryId;
   return {
     curriculumId,
     subject: offering.subject.name,
-    pathLabel: [...(ownLeaf ? names.slice(0, -1) : names), offering.board?.name, offering.level?.name].filter(Boolean).join(" › "),
+    pathLabel: [...names, offering.board?.name, offering.level?.name].filter(Boolean).join(" › "),
   };
 }
 

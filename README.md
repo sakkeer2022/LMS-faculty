@@ -10,6 +10,8 @@ npm install
 npm run dev              # http://localhost:3003
 ```
 
+Open the app at `http://faculty.localhost:<port>` (this one: `http://faculty.localhost:3002`), not `http://localhost:<port>`. Browsers share cookies between ports on one host, so a session started in another portal on plain `localhost` would replace this one. The backend also scopes its session cookies by portal (the `x-portal` header the API client sends).
+
 | Script              | Purpose                                                       |
 | ------------------- | ------------------------------------------------------------- |
 | `npm run typecheck` | TypeScript, strict                                            |
