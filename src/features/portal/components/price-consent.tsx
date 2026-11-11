@@ -5,11 +5,12 @@ import { ApiError } from "@/lib/api/contracts";
 import { FACULTY_HOME } from "@/lib/auth/access";
 import { decidePriceConsent, formatPaise, getMe, getPriceConsent, gstPercent, type PriceConsent } from "../model";
 import { PortalShell } from "./portal-shell";
+import { SignPricesDialog } from "./sign-prices-dialog";
 
 /**
  * Price consent after sign-in (LMS-39). The tutor accepts or declines the session prices
- * Amentorz set for each subject they chose at onboarding. The final design is pending
- * (backend docs/PENDING_DECISIONS.md, F5); this screen shows the data and the two actions.
+ * Amentorz set for each subject they chose at onboarding. Accepting opens the price agreement
+ * (SignPricesDialog), where the tutor signs, as a parent signs the Student Terms in the student app.
  */
 export function PriceConsentScreen() {
   const [name, setName] = useState<string>();
@@ -17,6 +18,8 @@ export function PriceConsentScreen() {
   const [error, setError] = useState("");
   const [pending, setPending] = useState<"accept" | "reject">();
   const [confirmDecline, setConfirmDecline] = useState(false);
+  const [signing, setSigning] = useState(false);
+  const [signError, setSignError] = useState<string>();
 
   useEffect(() => {
     getMe()
@@ -30,12 +33,13 @@ export function PriceConsentScreen() {
       .catch((err: unknown) => setError(err instanceof ApiError ? err.message : "Your prices could not be loaded."));
   }, []);
 
-  async function decide(decision: "accept" | "reject") {
+  async function decide(decision: "accept" | "reject", signature?: Blob) {
     if (!consent) return;
     setPending(decision);
     setError("");
+    setSignError(undefined);
     try {
-      const next = await decidePriceConsent(decision, consent.snapshotHash);
+      const next = await decidePriceConsent(decision, consent.snapshotHash, signature);
       if (next.status === "accepted") window.location.assign(FACULTY_HOME);
       else {
         setConsent(next);
@@ -43,9 +47,14 @@ export function PriceConsentScreen() {
       }
     } catch (err) {
       if (err instanceof ApiError && err.code === "PRICES_CHANGED") {
+        setSigning(false);
         setConsent(await getPriceConsent());
         setError("Your prices changed while this page was open. Review the new prices.");
-      } else setError(err instanceof ApiError ? err.message : "Your answer could not be saved. Try again.");
+      } else {
+        const message = err instanceof ApiError ? err.message : "Your answer could not be saved. Try again.";
+        if (decision === "accept") setSignError(message);
+        else setError(message);
+      }
     } finally {
       setPending(undefined);
     }
@@ -59,8 +68,8 @@ export function PriceConsentScreen() {
             Review your session prices
           </h1>
           <p className="consent-subtitle">
-            Amentorz set a price for each subject you teach. Students pay the session price plus GST. Accept the prices
-            to start using your tutor account.
+            Amentorz set a price for each subject you teach. Students pay the session price plus GST. Review and sign
+            the price agreement to start using your tutor account.
           </p>
         </div>
 
@@ -133,8 +142,8 @@ export function PriceConsentScreen() {
               </div>
             ) : (
               <div className="consent-actions">
-                <Button type="button" onClick={() => void decide("accept")} disabled={Boolean(pending)} aria-busy={pending === "accept" || undefined}>
-                  {pending === "accept" ? "Accepting…" : consent.status === "rejected" ? "Accept prices instead" : "Accept prices"}
+                <Button type="button" onClick={() => setSigning(true)} disabled={Boolean(pending)}>
+                  {consent.status === "rejected" ? "Accept prices instead" : "Accept prices"}
                 </Button>
                 {consent.status !== "rejected" && (
                   <Button type="button" variant="outline" onClick={() => setConfirmDecline(true)} disabled={Boolean(pending)}>
@@ -143,6 +152,18 @@ export function PriceConsentScreen() {
                 )}
               </div>
             )}
+            <SignPricesDialog
+              open={signing}
+              consent={consent}
+              tutorName={name}
+              pending={pending === "accept"}
+              error={signError}
+              onClose={() => {
+                setSigning(false);
+                setSignError(undefined);
+              }}
+              onSign={(signature) => void decide("accept", signature)}
+            />
           </>
         )}
       </section>

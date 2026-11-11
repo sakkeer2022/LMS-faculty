@@ -1,22 +1,31 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/shadcn/button";
-import { Form, SelectField, TextField } from "./fields";
-import { TEACHING_EXPERIENCE, type Credentials } from "../model/types";
+import { useServedCountries } from "@/lib/regions";
+import { Form, PhoneField, SelectField, TextField } from "./fields";
+import { TEACHING_EXPERIENCE, type Credentials, type TeachingMode } from "../model/types";
 import type { FieldErrors } from "../model/validation";
 
-/** Screen 43b, "Your credentials". */
+/**
+ * Screen 43b, "Your credentials". In a re-upload (`mode="reupload"`) the account already exists, so the
+ * password fields are not shown and the answers on file are filled in.
+ */
 export function CredentialsStep({
   values,
   errors,
+  teachingModes,
+  mode = "apply",
   onChange,
   onContinue,
 }: {
   values: Credentials;
   errors: FieldErrors;
+  teachingModes: readonly TeachingMode[];
+  mode?: "apply" | "reupload";
   onChange: (values: Credentials) => void;
   onContinue: () => void;
 }) {
+  const countries = useServedCountries();
   const set = (key: keyof Credentials) => (event: { target: { value: string } }) =>
     onChange({ ...values, [key]: event.target.value });
   return (
@@ -49,41 +58,42 @@ export function CredentialsStep({
           onChange={set("fullName")}
           error={errors.fullName}
         />
-        <TextField
-          label="Password"
-          name="password"
-          type="password"
-          reveal
-          required
-          autoComplete="new-password"
-          placeholder="Create a password"
-          value={values.password}
-          onChange={set("password")}
-          error={errors.password}
-          hint="At least 8 characters, including a number."
-        />
-        <TextField
-          label="Confirm password"
-          name="confirmPassword"
-          type="password"
-          reveal
-          required
-          autoComplete="new-password"
-          placeholder="Confirm your password"
-          value={values.confirmPassword}
-          onChange={set("confirmPassword")}
-          error={errors.confirmPassword}
-        />
-        <TextField
+        {mode === "apply" && (
+          <>
+            <TextField
+              label="Password"
+              name="password"
+              type="password"
+              reveal
+              required
+              autoComplete="new-password"
+              placeholder="Create a password"
+              value={values.password}
+              onChange={set("password")}
+              error={errors.password}
+              hint="At least 8 characters, including a number."
+            />
+            <TextField
+              label="Confirm password"
+              name="confirmPassword"
+              type="password"
+              reveal
+              required
+              autoComplete="new-password"
+              placeholder="Confirm your password"
+              value={values.confirmPassword}
+              onChange={set("confirmPassword")}
+              error={errors.confirmPassword}
+            />
+          </>
+        )}
+        <PhoneField
           label="Phone"
           name="mobileNumber"
-          type="tel"
           required
-          autoComplete="tel"
-          inputMode="tel"
-          placeholder="+91"
+          countries={countries}
           value={values.mobileNumber}
-          onChange={set("mobileNumber")}
+          onChange={(mobileNumber) => onChange({ ...values, mobileNumber })}
           hint="We send session alerts here."
           error={errors.mobileNumber}
         />
@@ -115,6 +125,17 @@ export function CredentialsStep({
           onChange={set("teachingExperience")}
           error={errors.teachingExperience}
         />
+        <SelectField
+          className="onboarding-span"
+          label="Preferred mode of teaching"
+          name="teachingMode"
+          required
+          placeholder="Select a mode"
+          options={teachingModes.map((m) => ({ value: m.code, label: m.name }))}
+          value={values.teachingMode}
+          onChange={set("teachingMode")}
+          error={errors.teachingMode}
+        />
         <TextField
           className="onboarding-span"
           label="Where did you study?"
@@ -128,9 +149,11 @@ export function CredentialsStep({
       </div>
       <div className="onboarding-actions">
         <Button type="submit">Continue to subjects</Button>
-        <Link href="/login" className="onboarding-back">
-          Back
-        </Link>
+        {mode === "apply" && (
+          <Link href="/login" className="onboarding-back">
+            Back
+          </Link>
+        )}
       </div>
     </Form>
   );
