@@ -11,7 +11,7 @@ const backend = () => `${process.env.BACKEND_ORIGIN ?? 'http://127.0.0.1:3000'}/
 export async function requireFaculty() {
   const path = (await headers()).get('x-pathname') ?? FACULTY_HOME;
   const toLogin = `/login?redirect=${encodeURIComponent(path)}`;
-  const token = (await cookies()).get('accessToken')?.value;
+  const token = (await cookies()).get('faculty_accessToken')?.value;
   if (!token) redirect(toLogin);
   const init = {
     headers: { Authorization: `Bearer ${token}` },
