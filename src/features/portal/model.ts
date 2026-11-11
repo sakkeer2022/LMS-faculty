@@ -36,11 +36,21 @@ export async function getPriceConsent() {
   return priceConsentSchema.parse((await api<unknown>("/faculty/me/price-consent")).data);
 }
 
-export async function decidePriceConsent(decision: "accept" | "reject", snapshotHash: string) {
-  const res = await api<unknown>("/faculty/me/price-consent", {
-    method: "POST",
-    body: JSON.stringify({ decision, snapshotHash }),
-  });
+/**
+ * Accepting is a signed agreement: the drawn signature (PNG) goes with it as multipart form data.
+ * Declining sends no signature.
+ */
+export async function decidePriceConsent(decision: "accept" | "reject", snapshotHash: string, signature?: Blob) {
+  let body: BodyInit;
+  if (decision === "accept") {
+    if (!signature) throw new Error("A signature is required to accept");
+    const form = new FormData();
+    form.set("decision", decision);
+    form.set("snapshotHash", snapshotHash);
+    form.set("signature", signature, "signature.png");
+    body = form;
+  } else body = JSON.stringify({ decision, snapshotHash });
+  const res = await api<unknown>("/faculty/me/price-consent", { method: "POST", body });
   return priceConsentSchema.parse(res.data);
 }
 

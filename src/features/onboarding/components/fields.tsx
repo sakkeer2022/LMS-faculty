@@ -4,6 +4,7 @@ import { Eye, EyeOff, UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
+import { PhoneInput, type PhoneInputProps } from "@/components/forms/phone-input";
 
 /* Form controls for the onboarding screens (Figma 43b-43d). Each field links its label, hint and error. */
 
@@ -86,6 +87,24 @@ export function TextField({
           </button>
         )}
       </div>
+    </FieldShell>
+  );
+}
+
+/** Phone number with a separate country code (flag and dialling code) and number. */
+export function PhoneField({
+  label,
+  hint,
+  error,
+  required,
+  className,
+  ...props
+}: FieldBase & Omit<PhoneInputProps, "id" | "invalid" | "describedBy" | "className"> & { id?: string }) {
+  const generated = useId();
+  const id = props.id ?? generated;
+  return (
+    <FieldShell {...{ id, label, hint, error, required, className }}>
+      <PhoneInput {...props} id={id} required={required} invalid={Boolean(error)} describedBy={describedBy(id, hint, error)} className="h-[38px]" />
     </FieldShell>
   );
 }

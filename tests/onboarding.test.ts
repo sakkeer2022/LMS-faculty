@@ -78,6 +78,7 @@ describe("credentials validation (mirrors the backend)", () => {
     mobileNumber: "+91 98765 43210",
     highestQualification: "M.Sc. Physics",
     teachingExperience: "5-10",
+    teachingMode: "hybrid",
   };
   it("accepts a valid form and normalises the phone number", () => {
     const result = validateCredentials(valid);
@@ -91,6 +92,7 @@ describe("credentials validation (mirrors the backend)", () => {
     [{ mobileNumber: "98765 43210" }, "mobileNumber"],
     [{ highestQualification: "" }, "highestQualification"],
     [{ teachingExperience: "" }, "teachingExperience"],
+    [{ teachingMode: "" }, "teachingMode"],
   ])("rejects %j", (override, field) => {
     const result = validateCredentials({ ...valid, ...override });
     expect(result.ok).toBe(false);

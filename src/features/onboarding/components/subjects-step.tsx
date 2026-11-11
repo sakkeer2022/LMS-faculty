@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/shadcn/button";
-import { CheckboxField } from "./fields";
 import {
   cardFor,
   choose,
@@ -22,22 +21,18 @@ export function SubjectsStep({
   tree,
   path,
   selected,
-  offline,
   error,
   onPath,
   onSelected,
-  onOffline,
   onBack,
   onContinue,
 }: {
   tree: OfferingTree;
   path: Step[];
   selected: string[];
-  offline: boolean;
   error?: string;
   onPath: (path: Step[]) => void;
   onSelected: (ids: string[]) => void;
-  onOffline: (value: boolean) => void;
   onBack: () => void;
   onContinue: () => void;
 }) {
@@ -105,12 +100,6 @@ export function SubjectsStep({
               </ul>
             ))}
           </div>
-          <CheckboxField
-            className="onboarding-offline"
-            label="Are you interested in taking offline class?"
-            checked={offline}
-            onChange={(e) => onOffline(e.target.checked)}
-          />
         </div>
 
         <aside className="onboarding-cards" aria-labelledby="cards-title">

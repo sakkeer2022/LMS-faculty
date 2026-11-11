@@ -19,10 +19,3 @@ export const BRAND = {
     detail: "Parent · Class 10 CBSE · Pune",
   },
 } as const;
-
-export const TIMELINE = [
-  { title: "Document submitted", text: "Operations verifies your ID, degree and PAN. Usually 3–5 working days." },
-  { title: "Document check", text: "Operations verifies your ID, degree and PAN. Usually 3–5 working days." },
-  { title: "Short subject call", text: "A 20-minute call on the subjects you selected. We book it by email." },
-  { title: "Profile goes live", text: "Your profile appears in tutor search and you can set your availability." },
-] as const;
