@@ -485,25 +485,41 @@ button.onboarding-card-remove:hover {
   height: 34px;
   font-size: 12px;
 }
-.onboarding-offline {
+.onboarding-extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
   font-size: 12px;
+  line-height: 18px;
+}
+.onboarding-extra[data-removed] > span {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
 }
 
-/* Submitted (43e) */
+/* Submitted (43e): the block sits in the middle of the panel, as in Figma */
+.onboarding-panel--centered {
+  align-items: center;
+}
 .onboarding-submitted {
-  max-width: 430px;
-  padding-top: 32px;
+  width: 100%;
+  max-width: 440px;
+  gap: 12px;
 }
 .onboarding-done-mark {
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 .onboarding-reference {
   display: inline-flex;
   align-self: flex-start;
   align-items: center;
   gap: 8px;
-  margin: 0;
-  padding: 6px 8px;
+  margin: 12px 0 0;
+  padding: 7px 10px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
   color: var(--text-secondary);
@@ -515,71 +531,6 @@ button.onboarding-card-remove:hover {
   background: #dceaff;
   color: #1e3a8a;
   font-weight: 600;
-}
-.onboarding-timeline {
-  margin: 0;
-  padding: 18px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  list-style: none;
-}
-.onboarding-timeline li {
-  position: relative;
-  display: flex;
-  gap: 10px;
-  padding-bottom: 26px;
-  color: var(--muted-foreground);
-}
-.onboarding-timeline li:last-child {
-  padding-bottom: 0;
-}
-.onboarding-timeline li:not(:last-child)::before {
-  content: "";
-  position: absolute;
-  left: 9px;
-  top: 26px;
-  bottom: 6px;
-  width: 1px;
-  background: var(--border);
-}
-.onboarding-timeline li[data-done="true"] {
-  color: var(--foreground);
-}
-.onboarding-timeline-mark {
-  display: inline-flex;
-  width: 18px;
-  height: 18px;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  font-size: 9px;
-}
-.onboarding-timeline li[data-done="true"] .onboarding-timeline-mark {
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-.onboarding-timeline-body {
-  flex: 1 1 auto;
-}
-.onboarding-timeline-title {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 18px;
-}
-.onboarding-timeline-text {
-  margin: 0;
-  font-size: 11px;
-  line-height: 16px;
-  color: var(--muted-foreground);
-}
-.onboarding-timeline-chevron {
-  flex: none;
-  color: var(--muted-foreground);
-}
-.onboarding-home {
-  align-self: flex-start;
 }
 .sr-only {
   position: absolute;

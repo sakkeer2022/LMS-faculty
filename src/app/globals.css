@@ -120,6 +120,8 @@
   --radius-md: var(--radius);
   --radius-lg: var(--radius);
   --radius-xl: var(--radius);
+  --radius-card: 12px;
+  --radius-panel: 16px;
   --radius-pill: 999px;
 
   /* Figma type scale: heading/sm 18/26, numeric/lg 30/38, display/sm 36/44. */
