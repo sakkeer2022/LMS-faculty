@@ -1,16 +1,9 @@
 "use client";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { Button } from "@/components/shadcn/button";
-import {
-  cardFor,
-  choose,
-  columnsFor,
-  isSelected,
-  MAX_SUBJECTS,
-  toggleSubject,
-  type Step,
-} from "../model/picker";
+import { cardFor, MAX_SUBJECTS, toggleSubject, type Step } from "../model/picker";
 import type { OfferingTree } from "../model/types";
+import { SubjectColumns } from "./subject-columns";
 
 /**
  * Screen 43c, "What do you teach?": pick a stream, then move through the columns; each
@@ -37,15 +30,7 @@ export function SubjectsStep({
   onBack: () => void;
   onContinue: () => void;
 }) {
-  const columns = useMemo(() => columnsFor(tree, path), [tree, path]);
   const cards = useMemo(() => selected.flatMap((id) => cardFor(tree, id) ?? []), [tree, selected]);
-  const scroller = useRef<HTMLDivElement>(null);
-
-  // Keep the newest column in view
-  useEffect(() => {
-    const el = scroller.current;
-    if (el) el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
-  }, [columns.length]);
 
   return (
     <section className="onboarding-subjects" aria-labelledby="subjects-title">
@@ -54,53 +39,21 @@ export function SubjectsStep({
           What do you teach?
         </h1>
         <p className="onboarding-subtitle">
-          Pick a stream, then move through the columns to the subject you teach. Add every subject and class you cover.
+          Pick a stream, then move through the columns to the subject you teach. Add up to {MAX_SUBJECTS} subjects and classes you cover.
         </p>
       </div>
 
       <div className="onboarding-subjects-body">
         <div className="onboarding-picker-wrap">
-          <div className="onboarding-picker" ref={scroller} role="group" aria-label="Subject picker">
-            {columns.map((column, index) => (
-              <ul key={column.key} className="onboarding-column" aria-label={column.title}>
-                {column.items.length === 0 && <li className="onboarding-column-empty">Nothing to choose here yet</li>}
-                {column.items.map((item) => {
-                  const leaf = item.curriculumId;
-                  const active = leaf ? selected.includes(leaf) : isSelected(path, index, item.step);
-                  return (
-                    <li key={item.key}>
-                      <Button type="button"
-                        variant="ghost"
-                        className="onboarding-column-item"
-                        data-active={active}
-                        aria-pressed={leaf ? active : undefined}
-                        aria-current={!leaf && active ? "true" : undefined}
-                        onClick={() => {
-                          if (leaf) onSelected(toggleSubject(selected, leaf));
-                          else if (item.step) onPath(choose(path, columns, index, item.step));
-                        }}
-                      >
-                        <span>{item.label}</span>
-                        {item.hasNext ? (
-                          <svg aria-hidden width="14" height="14" viewBox="0 0 16 16">
-                            <path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                          </svg>
-                        ) : active ? (
-                          <svg aria-hidden width="14" height="14" viewBox="0 0 12 12">
-                            <path d="M2.5 6.5l2.2 2.2L9.5 3.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        ) : (
-                          <svg aria-hidden width="14" height="14" viewBox="0 0 16 16">
-                            <path d="M8 3.5v9M3.5 8h9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                          </svg>
-                        )}
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
-            ))}
-          </div>
+          <SubjectColumns
+            tree={tree}
+            path={path}
+            onPath={onPath}
+            isPicked={(id) => selected.includes(id)}
+            // At the limit, only picked subjects stay clickable (to remove them)
+            isDisabled={(id) => selected.length >= MAX_SUBJECTS && !selected.includes(id)}
+            onPick={(id) => onSelected(toggleSubject(selected, id))}
+          />
         </div>
 
         <aside className="onboarding-cards" aria-labelledby="cards-title">
@@ -134,7 +87,9 @@ export function SubjectsStep({
             ))}
           </ul>
           {selected.length >= MAX_SUBJECTS && (
-            <p className="text-[11px] leading-4 text-muted-foreground">You can add up to {MAX_SUBJECTS} subjects.</p>
+            <p className="text-[11px] leading-4 text-muted-foreground">
+              You can add up to {MAX_SUBJECTS} subjects. Remove one to pick another.
+            </p>
           )}
           {error && (
             <p className="text-xs leading-4 text-destructive" role="alert">

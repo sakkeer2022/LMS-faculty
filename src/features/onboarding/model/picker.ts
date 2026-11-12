@@ -107,7 +107,11 @@ export function cardFor(tree: OfferingTree, curriculumId: string): SubjectCard |
   };
 }
 
-export const MAX_SUBJECTS = 30;
+/**
+ * A tutor holds at most 5 subject cards (backend MAX_SUBJECT_CARDS, decided 2026-11-12): at onboarding,
+ * and in total once more are requested from the profile. The server enforces it too.
+ */
+export const MAX_SUBJECTS = 5;
 
 export function toggleSubject(selected: readonly string[], curriculumId: string): string[] {
   if (selected.includes(curriculumId)) return selected.filter((id) => id !== curriculumId);
